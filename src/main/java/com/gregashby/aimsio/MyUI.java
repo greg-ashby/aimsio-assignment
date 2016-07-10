@@ -8,9 +8,11 @@ import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gregashby.aimsio.ChartsData.ShoeSizeInfo;
+import com.gregashby.aimsio.components.ChartFilter;
+import com.gregashby.aimsio.database.SignalInfo;
 import com.gregashby.aimsio.database.SignalsData;
 import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.AxisType;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.DataSeries;
@@ -24,11 +26,13 @@ import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.UI;
 
 /**
- * This UI is the application entry point. A UI may either represent a browser window 
- * (or tab) or some part of a html page where a Vaadin application is embedded.
+ * This UI is the application entry point. A UI may either represent a browser
+ * window (or tab) or some part of a html page where a Vaadin application is
+ * embedded.
  * <p>
- * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be 
- * overridden to add component to the user interface and initialize non-component functionality.
+ * The UI is initialized using {@link #init(VaadinRequest)}. This method is
+ * intended to be overridden to add component to the user interface and
+ * initialize non-component functionality.
  */
 @Theme("mytheme")
 @Widgetset("org.test.MyAppWidgetset")
@@ -36,51 +40,52 @@ public class MyUI extends UI {
 
 	private static final long serialVersionUID = -3079757697754396044L;
 	public static Logger logger = LoggerFactory.getLogger("default");
-   
-    
-    @Override
-    protected void init(VaadinRequest vaadinRequest) {
-    	CustomLayout layout = new CustomLayout("layout");
-    	setContent(layout);
-    	try {
-			try {
-				SignalsData.init();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
+
+	private ChartFilter chartFilter = null;
+
+	@Override
+	protected void init(VaadinRequest vaadinRequest) {
+		CustomLayout layout = new CustomLayout("layout");
+		setContent(layout);
+
+		try {
+			SignalsData.initConnection();
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-    	Chart chart = new Chart();
-		Configuration conf = chart.getConfiguration();
-		conf.setTitle("Hello Charts!");
+
+
+		chartFilter = new ChartFilter(); // TODO initialize this with the max
+											// date in the signals db
+		layout.addComponent(chartFilter, "chart-filter");
+
+
+		Chart chart = new Chart();
+		Configuration config = chart.getConfiguration();
+		config.setTitle("Signal Counts");
 		layout.addComponent(chart, "chart");
-    	
-		conf.getChart().setType(ChartType.LINE);
-		ChartsData data = new ChartsData();
-		DataSeries girls = new DataSeries("Girls");
-		for (ShoeSizeInfo shoeSizeInfo : data.getGirlsData()) {
-			// Shoe size on the X-axis, age on the Y-axis
-			girls.add(new DataSeriesItem(shoeSizeInfo.getSize(), shoeSizeInfo.getAgeMonths() / 12.0f));
+
+		config.getChart().setType(ChartType.LINE);
+		config.getxAxis().setType(AxisType.DATETIME);
+
+		DataSeries signals = new DataSeries("Signals");
+		try {
+			for (SignalInfo signalInfo : SignalsData.getSignalInfo(null, null)) {
+				// Shoe size on the X-axis, age on the Y-axis
+				signals.add(new DataSeriesItem(signalInfo.getEntryDate(), signalInfo.getCount()));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		conf.addSeries(girls);
+		config.addSeries(signals);
 
-		DataSeries boys = new DataSeries("Boys");
-		for (ShoeSizeInfo shoeSizeInfo : data.getBoysData()) {
-			// Shoe size on the X-axis, age on the Y-axis
-			boys.add(new DataSeriesItem(shoeSizeInfo.getSize(), shoeSizeInfo.getAgeMonths() / 12.0f));
-		}
-		conf.addSeries(boys);
+	}
 
-		
-		
-    }
-
-    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
-    public static class MyUIServlet extends VaadinServlet {
-    }
+	@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
+	@VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
+	public static class MyUIServlet extends VaadinServlet {
+	}
 }
