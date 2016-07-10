@@ -1,4 +1,4 @@
-package org.test;
+package com.gregashby.aimsio;
 
 import java.text.DateFormat;
 import java.text.ParseException;

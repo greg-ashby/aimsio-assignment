@@ -1,9 +1,15 @@
-package org.test;
+package com.gregashby.aimsio;
 
+import java.sql.SQLException;
+
+import javax.naming.NamingException;
 import javax.servlet.annotation.WebServlet;
 
-import org.test.ChartsData.ShoeSizeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.gregashby.aimsio.ChartsData.ShoeSizeInfo;
+import com.gregashby.aimsio.database.SignalsData;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
@@ -28,11 +34,25 @@ import com.vaadin.ui.UI;
 @Widgetset("org.test.MyAppWidgetset")
 public class MyUI extends UI {
 
+	private static final long serialVersionUID = -3079757697754396044L;
+	public static Logger logger = LoggerFactory.getLogger("default");
+   
+    
     @Override
     protected void init(VaadinRequest vaadinRequest) {
     	CustomLayout layout = new CustomLayout("layout");
     	setContent(layout);
-    	
+    	try {
+			try {
+				SignalsData.init();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	
     	Chart chart = new Chart();
 		Configuration conf = chart.getConfiguration();
@@ -54,7 +74,9 @@ public class MyUI extends UI {
 			boys.add(new DataSeriesItem(shoeSizeInfo.getSize(), shoeSizeInfo.getAgeMonths() / 12.0f));
 		}
 		conf.addSeries(boys);
-  	
+
+		
+		
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

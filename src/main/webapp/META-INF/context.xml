@@ -1,0 +1,4 @@
+<Context>
+	<ResourceLink name="jdbc/amsio_assignment_db"
+		global="com.gregashby.aimsio.database.DataSource" />
+</Context>
