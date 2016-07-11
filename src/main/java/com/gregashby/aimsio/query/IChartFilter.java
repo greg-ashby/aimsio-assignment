@@ -1,4 +1,4 @@
-package com.gregashby.aimsio.components;
+package com.gregashby.aimsio.query;
 
 import java.util.Date;
 

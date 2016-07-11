@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.naming.Context;
@@ -14,8 +15,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import com.gregashby.aimsio.chart.SeriesFilter;
-import com.gregashby.aimsio.components.IChartFilter;
+import com.gregashby.aimsio.query.IChartFilter;
+import com.gregashby.aimsio.query.ISeriesFilters;
+import com.gregashby.aimsio.query.QueryBuilder;
 
 public class SignalsData {
 
@@ -35,17 +37,8 @@ public class SignalsData {
 			}
 		}
 	}
-	
-	public static List<List<SignalInfo>> getSignalInfoForMultipleSeries(IChartFilter chartFilter,
-			List<SeriesFilter> seriesFilters) throws SQLException {
-		List<List<SignalInfo>> signalInfoSeries = new ArrayList<List<SignalInfo>>();
-		for (SeriesFilter seriesFilter : seriesFilters) {
-			signalInfoSeries.add(getSignalInfo(chartFilter, seriesFilter));
-		}
-		return signalInfoSeries;
-	}
 
-	public static List<SignalInfo> getSignalInfo(IChartFilter chartFilter, SeriesFilter seriesFilter)
+	public static List<SignalInfo> getSignalInfo(IChartFilter chartFilter, ISeriesFilters seriesFilter)
 			throws SQLException {
 		List<SignalInfo> signalInfos = new ArrayList<SignalInfo>();
 		QueryBuilder queryBuilder = new QueryBuilder();
@@ -56,12 +49,44 @@ public class SignalsData {
 			while (rs.next()) {
 				SignalInfo signalInfo = new SignalInfo();
 				signalInfo.setEntryDate(rs.getDate("entry_date"));
-				signalInfo.setSignalName(rs.getString("signal_name"));
 				signalInfo.setCount(rs.getInt("count"));
 				signalInfos.add(signalInfo);
 			}
 		}
 		return signalInfos;
+	}
+
+	public static Date getMaxDate() throws SQLException {
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement stmt = conn.prepareStatement("SELECT max(entry_date) AS 'max_date' FROM SIGNALS;");
+				ResultSet rs = stmt.executeQuery();) {
+			rs.next();
+			return rs.getDate("max_date");
+		}
+	}
+
+	public static List<String> getAssetUNs() throws SQLException {
+		List<String> assertUNs = new ArrayList<String>();
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement stmt = conn.prepareStatement("SELECT Distinct AssetUN FROM SIGNALS;");
+				ResultSet rs = stmt.executeQuery();) {
+			while (rs.next()) {
+				assertUNs.add(rs.getString("AssetUN"));
+			}
+			return assertUNs;
+		}
+	}
+	
+	public static List<String> getStatuses() throws SQLException {
+		List<String> statuses = new ArrayList<String>();
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement stmt = conn.prepareStatement("SELECT Distinct status FROM SIGNALS;");
+				ResultSet rs = stmt.executeQuery();) {
+			while (rs.next()) {
+				statuses.add(rs.getString("status"));
+			}
+			return statuses;
+		}
 	}
 
 }
