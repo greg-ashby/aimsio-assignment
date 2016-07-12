@@ -4,41 +4,8 @@ aimsio-assignment
 Template for a simple Vaadin application that only requires a Servlet 3.0 container to run.
 
 
-Workflow
-========
-
-To compile the entire project, run "mvn install".
-
-To run the application, run "mvn jetty:run" and open http://localhost:8080/ .
-
-Debugging client side code
-  - run "mvn vaadin:run-codeserver" on a separate console while the application is running
-  - activate Super Dev Mode in the debug window of the application
-
-To produce a deployable production mode WAR:
-- change productionMode to true in the servlet class configuration (nested in the UI class)
-- run "mvn clean package"
-- test the war file with "mvn jetty:run-war"
-
-Developing a theme using the runtime compiler
--------------------------
-
-When developing the theme, Vaadin can be configured to compile the SASS based
-theme at runtime in the server. This way you can just modify the scss files in
-your IDE and reload the browser to see changes.
-
-To use the runtime compilation, open pom.xml and comment out the compile-theme 
-goal from vaadin-maven-plugin configuration. To remove a possibly existing 
-pre-compiled theme, run "mvn clean package" once.
-
-When using the runtime compiler, running the application in the "run" mode 
-(rather than in "debug" mode) can speed up consecutive theme compilations
-significantly.
-
-It is highly recommended to disable runtime compilation for production WAR files.
-
-Using Vaadin pre-releases
--------------------------
-
-If Vaadin pre-releases are not enabled by default, use the Maven parameter
-"-P vaadin-prerelease" or change the activation default value of the profile in pom.xml .
+TODO
+==============
+- fix chart series so lines aren't drawn where there's missing data, instead of drawing a line between all points (as per https://vaadin.com/forum#!/thread/11655898, can use nulls to prevent lines being drawn, but I think this would require calculating all possible x-axis values based on the date-resolution, then inserting a null in the data series for each missing value. Can be done, I'm just choosing to be lazy and not doing it yet)
+- make chart render each series after loading data so users can see progress... just need to refactor updateChart and loadAllData so each data series gets drawn before loading the next one (or better yet, have each series loaded in a separate thread and drawn immediately after retrieval... again, I'm just chosing to be lazy and not optimize the interface that much yet).
+- change "Add Series" button to provide a popup that let's user specify Name and Color, and add an 'Edit' button for each series filter to let them edit that.

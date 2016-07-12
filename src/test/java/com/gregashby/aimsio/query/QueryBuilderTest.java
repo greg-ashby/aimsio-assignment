@@ -46,8 +46,6 @@ public class QueryBuilderTest {
 
 	@Test
 	public void testDateRanges() throws ParseException {
-		final String DATE_FORMAT = "yyyy-MM-dd";
-
 		String[] fromDates = { "2015-01-01", "2015-01-01", null };
 		String[] toDates = { "2015-01-31", null, "2015-01-31" };
 
@@ -63,7 +61,7 @@ public class QueryBuilderTest {
 						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;" };
 
 		for (int x = 0; x < expecteds.length; x++) {
-			MockChartFilter chartFilter = new MockChartFilter();
+			IChartFilter chartFilter = new MockChartFilter();
 			if (fromDates[x] != null) {
 				chartFilter.setFromDate(new SimpleDateFormat(QueryBuilder.WHERE_DATE_FORMAT).parse(fromDates[x]));
 			}
@@ -73,6 +71,49 @@ public class QueryBuilderTest {
 			String actual = builder.buildQuery(chartFilter, null);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
+	}
+	
+	@Test
+	public void testAssetNames(){
+		String[] assetNames = { null, "3112", "ALL" };
 
+		String[] expecteds = {
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "WHERE AssetUN = '3112' "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;" };
+
+		for (int x = 0; x < expecteds.length; x++) {
+			ISeriesFilter seriesFilter = new MockSeriesFilter();
+			seriesFilter.setAssetUN(assetNames[x]);
+
+			String actual = builder.buildQuery(null, seriesFilter);
+			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
+		}		
+	}
+	
+	@Test
+	public void testStatuses(){
+		String[] statuses = { null, "Engaged", "ALL" };
+
+		String[] expecteds = {
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "WHERE status = 'Engaged' "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;" };
+
+		for (int x = 0; x < expecteds.length; x++) {
+			ISeriesFilter seriesFilter = new MockSeriesFilter();
+			seriesFilter.setStatus(statuses[x]);
+
+			String actual = builder.buildQuery(null, seriesFilter);
+			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
+		}		
 	}
 }

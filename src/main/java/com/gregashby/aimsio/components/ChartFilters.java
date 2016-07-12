@@ -3,7 +3,7 @@ package com.gregashby.aimsio.components;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.gregashby.aimsio.MyUI;
+import com.gregashby.aimsio.MainUI;
 import com.gregashby.aimsio.query.IChartFilter;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
@@ -11,6 +11,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 
 public class ChartFilters extends CustomComponent implements IChartFilter {
 
@@ -20,9 +21,6 @@ public class ChartFilters extends CustomComponent implements IChartFilter {
 	private DateField toDate = new DateField();
 	private Button submitButton = new Button("Refresh Chart");
 	private String dateResolution = null;
-	
-	private MyUI myUI = null;
-	
 	
 	public ChartFilters() {
 		this(new Date());
@@ -41,7 +39,8 @@ public class ChartFilters extends CustomComponent implements IChartFilter {
 		setCompositionRoot(layout);
 
 		submitButton.addClickListener(e -> {
-			getMyUI().updateChart();
+			getMainUI().getSeriesManager().loadAllDataSeries(this);
+			getMainUI().updateChart();
 		});
 	}
 
@@ -83,12 +82,8 @@ public class ChartFilters extends CustomComponent implements IChartFilter {
 		this.dateResolution = dateResolution;
 	}
 
-	public MyUI getMyUI() {
-		return myUI;
-	}
-
-	public void setMyUI(MyUI myUI) {
-		this.myUI = myUI;
+	public MainUI getMainUI() {
+		return (MainUI) UI.getCurrent();
 	}
 
 }

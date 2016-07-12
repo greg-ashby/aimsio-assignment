@@ -5,22 +5,27 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gregashby.aimsio.MainUI;
+import com.gregashby.aimsio.database.SignalInfo;
 import com.gregashby.aimsio.database.SignalsData;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-public class SeriesFiltersManager extends CustomComponent {
+public class SeriesManager extends CustomComponent {
+
+	private static final int MAX_SERIES = 10;
 
 	private static final long serialVersionUID = -2541403903435412434L;
 
 	private VerticalLayout layout = new VerticalLayout();
 	private VerticalLayout seriesFiltersLayout = new VerticalLayout();
-	private Map<String, SeriesFilters> seriesFilters = new LinkedHashMap<String, SeriesFilters>();
+	private Map<String, Series> serieses = new LinkedHashMap<String, Series>();
 
 	private Button button = new Button("Add New Series");
-	private Label maxSeries = new Label("Maximum number of series reached");
+	private Label maxSeriesWarning = new Label("Maximum number of series reached");
 
 	private List<String> assetUNList = null;
 	public List<String> getAssetUNList() {
@@ -36,11 +41,11 @@ public class SeriesFiltersManager extends CustomComponent {
 	private int seriesNameCounter = 0;
 
 
-	public SeriesFiltersManager() {
+	public SeriesManager() {
 		setCompositionRoot(layout);
 		layout.addComponent(seriesFiltersLayout);
 		layout.addComponent(button);
-		layout.addComponent(maxSeries);
+		layout.addComponent(maxSeriesWarning);
 		
 
 		initListValues();
@@ -56,19 +61,19 @@ public class SeriesFiltersManager extends CustomComponent {
 	}
 
 	private void updateAddButtonVisibility() {
-		if(seriesFilters.size() >= 10){
+		if(serieses.size() >= MAX_SERIES){
 			button.setVisible(false);
-			maxSeries.setVisible(true);
+			maxSeriesWarning.setVisible(true);
 		} else {
 			button.setVisible(true);
-			maxSeries.setVisible(false);
+			maxSeriesWarning.setVisible(false);
 		}
 		
 	}
 
 	private void initListValues() {
-		assetUNList = SeriesFilters.makeBlankList();
-		statusList = SeriesFilters.makeBlankList();
+		assetUNList = Series.makeBlankList();
+		statusList = Series.makeBlankList();
 
 		try {
 			assetUNList.addAll(SignalsData.getAssetUNs());
@@ -85,23 +90,44 @@ public class SeriesFiltersManager extends CustomComponent {
 	public void addSeriesParameters() {
 		seriesNameCounter += 1;
 		String seriesName = "Series " + seriesNameCounter;
-		SeriesFilters parameters = new SeriesFilters(seriesName, this);
+		Series parameters = new Series(seriesName, this);
 		seriesFiltersLayout.addComponent(parameters);
-		seriesFilters.put(seriesName, parameters);
+		serieses.put(seriesName, parameters);
 	}
 	
-	public void removeSeriesFilter(SeriesFilters filterToRemove){
-		seriesFilters.remove(filterToRemove.getSeriesName());
+	public void removeSeries(Series filterToRemove){
+		serieses.remove(filterToRemove.getSeriesName());
 		seriesFiltersLayout.removeComponent(filterToRemove);
 		updateAddButtonVisibility();
+		getMainUI().updateChart();
 	}
 
-	public Map<String, SeriesFilters> getSeriesParameters() {
-		return seriesFilters;
+	public Map<String, Series> getSeries() {
+		return serieses;
 	}
 
-	public void setSeriesFilters(Map<String, SeriesFilters> seriesFilters) {
-		this.seriesFilters = seriesFilters;
+	public void loadAllDataSeries(ChartFilters chartFilter) {
+		serieses.forEach((seriesName, series) -> {
+			List<SignalInfo> data = null;
+			try {
+				data = SignalsData.getSignalInfo(chartFilter, series);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			series.setDataCache(data);
+		});
+		
 	}
+	
+	public MainUI getMainUI(){
+		return (MainUI) UI.getCurrent();
+	}
+
+	public void loadOneDataSeries(Series series) throws SQLException {
+		List<SignalInfo> data = SignalsData.getSignalInfo(getMainUI().getChartFilter(), series);
+		series.setDataCache(data);
+		getMainUI().updateChart();
+	}
+
 
 }

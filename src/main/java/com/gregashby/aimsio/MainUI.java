@@ -1,6 +1,7 @@
 package com.gregashby.aimsio;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gregashby.aimsio.components.ChartFilters;
-import com.gregashby.aimsio.components.SeriesFiltersManager;
-import com.gregashby.aimsio.components.SeriesFilters;
+import com.gregashby.aimsio.components.SeriesManager;
+import com.gregashby.aimsio.components.Series;
 import com.gregashby.aimsio.database.SignalInfo;
 import com.gregashby.aimsio.database.SignalsData;
 import com.vaadin.addon.charts.Chart;
@@ -42,16 +43,22 @@ import com.vaadin.ui.UI;
  */
 @Theme("mytheme")
 @Widgetset("org.test.MyAppWidgetset")
-public class MyUI extends UI {
+public class MainUI extends UI {
 
 	private static final long serialVersionUID = -3079757697754396044L;
 	public static Logger logger = LoggerFactory.getLogger("default");
 
 	private CustomLayout layout = null;
 	private ChartFilters chartFilter = null;
-	private SeriesFiltersManager seriesFiltersManager = null;
+	private SeriesManager seriesManager = null;
 
-	private Map<String, List<SignalInfo>> seriesDataCache = new LinkedHashMap<String, List<SignalInfo>>();
+	public SeriesManager getSeriesManager() {
+		return seriesManager;
+	}
+
+	public ChartFilters getChartFilter() {
+		return chartFilter;
+	}
 
 	@Override
 	protected void init(VaadinRequest vaadinRequest) {
@@ -60,21 +67,8 @@ public class MyUI extends UI {
 		initChartFilter();
 		initSeriesFilters();
 
-		loadAllData();
+		seriesManager.loadAllDataSeries(chartFilter);
 		updateChart();
-
-	}
-
-	public void loadAllData() {
-		seriesFiltersManager.getSeriesParameters().forEach((seriesName, seriesParameters) -> {
-			List<SignalInfo> data = null;
-			try {
-				data = SignalsData.getSignalInfo(chartFilter, seriesParameters);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			seriesDataCache.put(seriesName, data);
-		});
 
 	}
 
@@ -92,13 +86,12 @@ public class MyUI extends UI {
 		}
 		chartFilter = new ChartFilters(maxDate);
 		layout.addComponent(chartFilter, "chart-filter");
-		chartFilter.setMyUI(this);
 	}
 
 	private void initSeriesFilters() {
 
-		seriesFiltersManager = new SeriesFiltersManager();
-		layout.addComponent(seriesFiltersManager, "series-filter");
+		seriesManager = new SeriesManager();
+		layout.addComponent(seriesManager, "series-filter");
 
 	}
 
@@ -120,19 +113,24 @@ public class MyUI extends UI {
 		config.getChart().setType(ChartType.LINE);
 		config.getxAxis().setType(AxisType.DATETIME);
 
-		seriesDataCache.forEach((seriesName, seriesData) -> {
+		seriesManager.getSeries().forEach((seriesName, series) -> {
 			DataSeries signals = new DataSeries(seriesName);
-			seriesData.forEach(signalInfo -> {
+			series.getDataCache().forEach(signalInfo -> {
 				signals.add(new DataSeriesItem(signalInfo.getEntryDate(), signalInfo.getCount()));
 
 			});
+			try {
+				signals.add(new DataSeriesItem(new SimpleDateFormat("yyyy-MM-dd").parse("2015-08-24"), null));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			config.addSeries(signals);
 		});
-
 	}
 
 	@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-	@VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
+	@VaadinServletConfiguration(ui = MainUI.class, productionMode = false)
 	public static class MyUIServlet extends VaadinServlet {
 	}
 }

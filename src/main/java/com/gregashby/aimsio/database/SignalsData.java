@@ -1,6 +1,6 @@
 package com.gregashby.aimsio.database;
 
-import static com.gregashby.aimsio.MyUI.logger;
+import static com.gregashby.aimsio.MainUI.logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +16,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import com.gregashby.aimsio.query.IChartFilter;
-import com.gregashby.aimsio.query.ISeriesFilters;
+import com.gregashby.aimsio.query.ISeriesFilter;
 import com.gregashby.aimsio.query.QueryBuilder;
 
 public class SignalsData {
@@ -38,7 +38,7 @@ public class SignalsData {
 		}
 	}
 
-	public static List<SignalInfo> getSignalInfo(IChartFilter chartFilter, ISeriesFilters seriesFilter)
+	public static List<SignalInfo> getSignalInfo(IChartFilter chartFilter, ISeriesFilter seriesFilter)
 			throws SQLException {
 		List<SignalInfo> signalInfos = new ArrayList<SignalInfo>();
 		QueryBuilder queryBuilder = new QueryBuilder();
