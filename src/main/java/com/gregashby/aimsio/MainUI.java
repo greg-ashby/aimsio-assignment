@@ -1,11 +1,7 @@
 package com.gregashby.aimsio;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.servlet.annotation.WebServlet;
@@ -15,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gregashby.aimsio.components.ChartFilters;
 import com.gregashby.aimsio.components.SeriesManager;
-import com.gregashby.aimsio.components.Series;
-import com.gregashby.aimsio.database.SignalInfo;
 import com.gregashby.aimsio.database.SignalsData;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.AxisType;
@@ -119,12 +113,6 @@ public class MainUI extends UI {
 				signals.add(new DataSeriesItem(signalInfo.getEntryDate(), signalInfo.getCount()));
 
 			});
-			try {
-				signals.add(new DataSeriesItem(new SimpleDateFormat("yyyy-MM-dd").parse("2015-08-24"), null));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			config.addSeries(signals);
 		});
 	}

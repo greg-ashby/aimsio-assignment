@@ -1,6 +1,7 @@
 package com.gregashby.aimsio.components;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class SeriesManager extends CustomComponent {
 		return (MainUI) UI.getCurrent();
 	}
 
-	public void loadOneDataSeries(Series series) throws SQLException {
+	public void loadOneDataSeries(Series series) throws SQLException, ParseException {
 		List<SignalInfo> data = SignalsData.getSignalInfo(getMainUI().getChartFilter(), series);
 		series.setDataCache(data);
 		getMainUI().updateChart();

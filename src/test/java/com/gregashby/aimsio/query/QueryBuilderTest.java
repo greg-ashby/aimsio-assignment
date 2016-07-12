@@ -1,17 +1,18 @@
 package com.gregashby.aimsio.query;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.gregashby.aimsio.utils.DateHandler;
 
 public class QueryBuilderTest {
 
@@ -62,19 +63,15 @@ public class QueryBuilderTest {
 
 		for (int x = 0; x < expecteds.length; x++) {
 			IChartFilter chartFilter = new MockChartFilter();
-			if (fromDates[x] != null) {
-				chartFilter.setFromDate(new SimpleDateFormat(QueryBuilder.WHERE_DATE_FORMAT).parse(fromDates[x]));
-			}
-			if (toDates[x] != null) {
-				chartFilter.setToDate(new SimpleDateFormat(QueryBuilder.WHERE_DATE_FORMAT).parse(toDates[x]));
-			}
+			chartFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
+			chartFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
 			String actual = builder.buildQuery(chartFilter, null);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
 	}
-	
+
 	@Test
-	public void testAssetNames(){
+	public void testAssetNames() {
 		String[] assetNames = { null, "3112", "ALL" };
 
 		String[] expecteds = {
@@ -92,11 +89,11 @@ public class QueryBuilderTest {
 
 			String actual = builder.buildQuery(null, seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
-		}		
+		}
 	}
-	
+
 	@Test
-	public void testStatuses(){
+	public void testStatuses() {
 		String[] statuses = { null, "Engaged", "ALL" };
 
 		String[] expecteds = {
@@ -114,6 +111,61 @@ public class QueryBuilderTest {
 
 			String actual = builder.buildQuery(null, seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
-		}		
+		}
+	}
+
+	@Test
+	public void testResolution() {
+		String[] resolutions = { null, "Year", "Month", "Day" };
+
+		String[] expecteds = {
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;" };
+
+		for (int x = 0; x < expecteds.length; x++) {
+			IChartFilter chartFilter = new MockChartFilter();
+			chartFilter.setDateResolution(resolutions[x]);
+
+			String actual = builder.buildQuery(chartFilter, null);
+			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
+		}
+	}
+
+	@Test
+	public void testFilterCombinations() throws ParseException {
+		String[] fromDates = { "2014-01-01", "2014-01-01" };
+		String[] toDates = { "2015-01-31", "2015-02-28" };
+		String[] resolutions = { "Day", "Month" };
+		String[] assetUNs = { "5007A", "5007A" };
+		String[] statuses = { "Active", "Active" };
+
+		String[] expecteds = {
+				"SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "WHERE entry_date BETWEEN '2014-01-01' AND '2015-01-31 23:59:59.999999' "
+						+ " AND AssetUN = '5007A'  AND status = 'Active' "
+						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;",
+				"SELECT date_format(entry_date, '%Y-%m') AS 'entry_date', " + "count(*) AS 'count' FROM SIGNALS "
+						+ "WHERE entry_date BETWEEN '2014-01-01' AND '2015-02-28 23:59:59.999999' "
+						+ " AND AssetUN = '5007A'  AND status = 'Active' "
+						+ "GROUP BY date_format(entry_date, '%Y-%m') ORDER BY entry_date;" };
+
+		for (int x = 0; x < expecteds.length; x++) {
+			IChartFilter chartFilter = new MockChartFilter();
+			chartFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
+			chartFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
+			chartFilter.setDateResolution(resolutions[x]);
+			ISeriesFilter seriesFilter = new MockSeriesFilter();
+			seriesFilter.setAssetUN(assetUNs[x]);
+			seriesFilter.setStatus(statuses[x]);
+
+			String actual = builder.buildQuery(chartFilter, seriesFilter);
+			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
+		}
 	}
 }

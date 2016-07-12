@@ -1,12 +1,15 @@
 package com.gregashby.aimsio.query;
 
+import java.text.ParseException;
 import java.util.Date;
+
+import com.gregashby.aimsio.utils.DateHandler;
 
 public class MockChartFilter implements IChartFilter {
 
 	private Date fromDate = null;
 	private Date toDate = null;
-	private String dateResolution = null;
+	private String dateResolution = "";
 
 	public Date getFromDate() {
 		return fromDate;
@@ -25,11 +28,12 @@ public class MockChartFilter implements IChartFilter {
 	}
 
 	public String getDateResolution() {
-		return dateResolution;
+		return dateResolution == null ? "" : dateResolution;
 	}
 
 	public void setDateResolution(String dateResolution) {
 		this.dateResolution = dateResolution;
 	}
+
 
 }

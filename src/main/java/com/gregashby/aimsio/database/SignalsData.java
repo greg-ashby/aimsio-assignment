@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.sql.DataSource;
 import com.gregashby.aimsio.query.IChartFilter;
 import com.gregashby.aimsio.query.ISeriesFilter;
 import com.gregashby.aimsio.query.QueryBuilder;
+import com.gregashby.aimsio.utils.DateHandler;
 
 public class SignalsData {
 
@@ -39,7 +41,7 @@ public class SignalsData {
 	}
 
 	public static List<SignalInfo> getSignalInfo(IChartFilter chartFilter, ISeriesFilter seriesFilter)
-			throws SQLException {
+			throws SQLException, ParseException {
 		List<SignalInfo> signalInfos = new ArrayList<SignalInfo>();
 		QueryBuilder queryBuilder = new QueryBuilder();
 		String query = queryBuilder.buildQuery(chartFilter, seriesFilter);
@@ -48,7 +50,8 @@ public class SignalsData {
 				ResultSet rs = stmt.executeQuery();) {
 			while (rs.next()) {
 				SignalInfo signalInfo = new SignalInfo();
-				signalInfo.setEntryDate(rs.getDate("entry_date"));
+				signalInfo.setEntryDate(
+						DateHandler.convertStringToDate(chartFilter.getDateResolution(), rs.getString("entry_date")));
 				signalInfo.setCount(rs.getInt("count"));
 				signalInfos.add(signalInfo);
 			}
@@ -76,7 +79,7 @@ public class SignalsData {
 			return assertUNs;
 		}
 	}
-	
+
 	public static List<String> getStatuses() throws SQLException {
 		List<String> statuses = new ArrayList<String>();
 		try (Connection conn = dataSource.getConnection();
