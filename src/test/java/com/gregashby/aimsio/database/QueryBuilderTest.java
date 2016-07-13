@@ -1,10 +1,8 @@
-package com.gregashby.aimsio.query;
+package com.gregashby.aimsio.database;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,6 +10,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.gregashby.aimsio.database.ISeriesFilter;
+import com.gregashby.aimsio.database.QueryBuilder;
 import com.gregashby.aimsio.utils.DateHandler;
 
 public class QueryBuilderTest {
@@ -41,7 +41,7 @@ public class QueryBuilderTest {
 		String expected = "SELECT date_format(entry_date, '%Y-%m-%d') AS 'entry_date', "
 				+ "count(*) AS 'count' FROM SIGNALS "
 				+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;";
-		String actual = builder.buildQuery(null, null);
+		String actual = builder.buildQuery(null);
 		assertEquals(expected, actual);
 	}
 
@@ -62,10 +62,10 @@ public class QueryBuilderTest {
 						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;" };
 
 		for (int x = 0; x < expecteds.length; x++) {
-			IChartFilter chartFilter = new MockChartFilter();
-			chartFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
-			chartFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
-			String actual = builder.buildQuery(chartFilter, null);
+			ISeriesFilter seriesFilter = new MockSeriesFilter();
+			seriesFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
+			seriesFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
+			String actual = builder.buildQuery(seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
 	}
@@ -87,7 +87,7 @@ public class QueryBuilderTest {
 			ISeriesFilter seriesFilter = new MockSeriesFilter();
 			seriesFilter.setAssetUN(assetNames[x]);
 
-			String actual = builder.buildQuery(null, seriesFilter);
+			String actual = builder.buildQuery(seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
 	}
@@ -109,7 +109,7 @@ public class QueryBuilderTest {
 			ISeriesFilter seriesFilter = new MockSeriesFilter();
 			seriesFilter.setStatus(statuses[x]);
 
-			String actual = builder.buildQuery(null, seriesFilter);
+			String actual = builder.buildQuery(seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
 	}
@@ -129,10 +129,10 @@ public class QueryBuilderTest {
 						+ "GROUP BY date_format(entry_date, '%Y-%m-%d') ORDER BY entry_date;" };
 
 		for (int x = 0; x < expecteds.length; x++) {
-			IChartFilter chartFilter = new MockChartFilter();
-			chartFilter.setDateResolution(resolutions[x]);
+			ISeriesFilter seriesFilter = new MockSeriesFilter();
+			seriesFilter.setDateResolution(resolutions[x]);
 
-			String actual = builder.buildQuery(chartFilter, null);
+			String actual = builder.buildQuery(seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
 	}
@@ -156,15 +156,14 @@ public class QueryBuilderTest {
 						+ "GROUP BY date_format(entry_date, '%Y-%m') ORDER BY entry_date;" };
 
 		for (int x = 0; x < expecteds.length; x++) {
-			IChartFilter chartFilter = new MockChartFilter();
-			chartFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
-			chartFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
-			chartFilter.setDateResolution(resolutions[x]);
 			ISeriesFilter seriesFilter = new MockSeriesFilter();
+			seriesFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
+			seriesFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
+			seriesFilter.setDateResolution(resolutions[x]);
 			seriesFilter.setAssetUN(assetUNs[x]);
 			seriesFilter.setStatus(statuses[x]);
 
-			String actual = builder.buildQuery(chartFilter, seriesFilter);
+			String actual = builder.buildQuery(seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
 	}

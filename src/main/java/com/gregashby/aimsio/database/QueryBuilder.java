@@ -1,6 +1,6 @@
-package com.gregashby.aimsio.query;
+package com.gregashby.aimsio.database;
 
-import static com.gregashby.aimsio.MainUI.logger;
+import static com.gregashby.aimsio.components.MainUI.logger;
 
 import com.gregashby.aimsio.utils.DateHandler;
 
@@ -12,27 +12,27 @@ public class QueryBuilder {
 	private final static String GROUP_START = "GROUP BY date_format(entry_date, '";
 	private final static String GROUP_END = "') ORDER BY entry_date;";
 
-	public String buildQuery(IChartFilter chartFilter, ISeriesFilter seriesFilter) {
+	public String buildQuery(ISeriesFilter seriesFilter) {
 
-		String select = buildSelectOrGroupClause(SELECT_START, chartFilter, SELECT_END);
-		String where = buildWhereClause(chartFilter, seriesFilter);
-		String group = buildSelectOrGroupClause(GROUP_START, chartFilter, GROUP_END);
+		String select = buildSelectOrGroupClause(SELECT_START, seriesFilter, SELECT_END);
+		String where = buildWhereClause(seriesFilter);
+		String group = buildSelectOrGroupClause(GROUP_START, seriesFilter, GROUP_END);
 
 		String query = select + where + group;
 		logger.info(query);
 		return query;
 	}
 
-	private String buildSelectOrGroupClause(String clauseStart, IChartFilter chartFilter, String clauseEnd) {
-		String dateResolution = chartFilter == null ? "" : chartFilter.getDateResolution();
+	private String buildSelectOrGroupClause(String clauseStart, ISeriesFilter seriesFilter, String clauseEnd) {
+		String dateResolution = seriesFilter == null ? "" : seriesFilter.getDateResolution();
 		String dateFormat = DateHandler.getDateFormatForSql(dateResolution);
 		return clauseStart + dateFormat + clauseEnd;
 	}
 
-	private String buildWhereClause(IChartFilter chartFilter, ISeriesFilter seriesFilter) {
+	private String buildWhereClause(ISeriesFilter seriesFilter) {
 
 		StringBuilder whereClause = new StringBuilder();
-		String whereDateClause = buildWhereClauseForDates(chartFilter);
+		String whereDateClause = buildWhereClauseForDates(seriesFilter);
 		String whereAssetClause = buildWhereClauseForAssetUN(seriesFilter);
 		String whereStatusClause = buildWhereClauseForStatus(seriesFilter);
 
@@ -78,17 +78,17 @@ public class QueryBuilder {
 		}
 	}
 
-	private String buildWhereClauseForDates(IChartFilter chartFilter) {
+	private String buildWhereClauseForDates(ISeriesFilter seriesFilter) {
 
 		String whereDateRange = null;
-		if (chartFilter != null) {
+		if (seriesFilter != null) {
 			String fromDate = null;
-			if (chartFilter.getFromDate() != null) {
-				fromDate = DateHandler.getDayAsString(chartFilter.getFromDate());
+			if (seriesFilter.getFromDate() != null) {
+				fromDate = DateHandler.getDayAsString(seriesFilter.getFromDate());
 			}
 			String toDate = null;
-			if (chartFilter.getToDate() != null) {
-				toDate = DateHandler.getDayAsString(chartFilter.getToDate());
+			if (seriesFilter.getToDate() != null) {
+				toDate = DateHandler.getDayAsString(seriesFilter.getToDate());
 			}
 
 			if (fromDate != null && toDate != null) {

@@ -1,6 +1,6 @@
 package com.gregashby.aimsio.database;
 
-import static com.gregashby.aimsio.MainUI.logger;
+import static com.gregashby.aimsio.components.MainUI.logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,9 +16,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import com.gregashby.aimsio.query.IChartFilter;
-import com.gregashby.aimsio.query.ISeriesFilter;
-import com.gregashby.aimsio.query.QueryBuilder;
 import com.gregashby.aimsio.utils.DateHandler;
 
 public class SignalsData {
@@ -40,18 +37,18 @@ public class SignalsData {
 		}
 	}
 
-	public static List<SignalInfo> getSignalInfo(IChartFilter chartFilter, ISeriesFilter seriesFilter)
+	public static List<SignalInfo> getSignalInfo(ISeriesFilter seriesFilter)
 			throws SQLException, ParseException {
 		List<SignalInfo> signalInfos = new ArrayList<SignalInfo>();
 		QueryBuilder queryBuilder = new QueryBuilder();
-		String query = queryBuilder.buildQuery(chartFilter, seriesFilter);
+		String query = queryBuilder.buildQuery(seriesFilter);
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);
 				ResultSet rs = stmt.executeQuery();) {
 			while (rs.next()) {
 				SignalInfo signalInfo = new SignalInfo();
 				signalInfo.setEntryDate(
-						DateHandler.convertStringToDate(chartFilter.getDateResolution(), rs.getString("entry_date")));
+						DateHandler.convertStringToDate(seriesFilter.getDateResolution(), rs.getString("entry_date")));
 				signalInfo.setCount(rs.getInt("count"));
 				signalInfos.add(signalInfo);
 			}
