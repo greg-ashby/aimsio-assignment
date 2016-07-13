@@ -14,6 +14,11 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 
+/**
+ * Form for editing a series's parameters, and executing the update of a series
+ * when "Update" button is clicked.
+ *
+ */
 public class SeriesEditForm extends CustomComponent {
 
 	private static final long serialVersionUID = 7587816212756872418L;
@@ -30,6 +35,12 @@ public class SeriesEditForm extends CustomComponent {
 
 	private Button updateButton = new Button("Update Series");
 
+	/**
+	 * This is for tracking an original name for the series (i.e. what it's
+	 * stored as in the SeriesManager) so that it can be updated properly if
+	 * renamed. See the event listener on the popup visibility change event (in
+	 * SeriesView class) for more details).
+	 */
 	private String storedName = null;
 
 	public SeriesEditForm() {
@@ -64,6 +75,10 @@ public class SeriesEditForm extends CustomComponent {
 		layout.addComponent(updateButton);
 	}
 
+	/**
+	 * Takes a 'toDate' and calculates a default date range (currently -1 month)
+	 * for the 'fromDate', then pre-populates both fields.
+	 */
 	public void initDateFields(Date toDate) {
 		this.fromDate.setDateFormat(DATE_FIELD_DISPLAY_FORMAT);
 		this.toDate.setDateFormat(DATE_FIELD_DISPLAY_FORMAT);

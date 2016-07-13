@@ -7,6 +7,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Custom Component to render the "Series Filters" section of the UI
+ * 
+ */
 public class SeriesManagerView extends CustomComponent {
 
 	private static final long serialVersionUID = 7327705988530185755L;

@@ -1,5 +1,9 @@
 package com.gregashby.aimsio.ui;
 
+/**
+ * Simple bean specifying chart size and whether it should be rendered beside or below the series filter.
+ * 
+ */
 public class PageLayoutConfig {
 	
 	private boolean beside = true;

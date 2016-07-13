@@ -4,6 +4,10 @@ import static com.gregashby.aimsio.ui.MainUI.logger;
 
 import com.gregashby.aimsio.utils.DateHandler;
 
+/**
+ * Main logic class for determining what queries to run based on provided filters.
+ *
+ */
 public class QueryBuilder {
 
 	private final static String MAX_TIME_IN_DAY = "23:59:59.999999";
@@ -12,6 +16,16 @@ public class QueryBuilder {
 	private final static String GROUP_START = "GROUP BY date_format(entry_date, '";
 	private final static String GROUP_END = "') ORDER BY entry_date;";
 
+	/**
+	 * Constructs a SELECT query based on the provided filters. It can handle:
+	 * - date range (added to where clause)
+	 * - assetUN (all or 1 specific)
+	 * - status (all or 1 specific)
+	 * - date resolution (groups and selects signals according to year, month, day, etc).
+	 * 
+	 * @param seriesFilter
+	 * @return
+	 */
 	public String buildQuery(ISeriesFilter seriesFilter) {
 
 		String select = buildSelectOrGroupClause(SELECT_START, seriesFilter, SELECT_END);

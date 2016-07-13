@@ -21,7 +21,9 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- *
+ * Main Application Class, provides the User Interface, Servlet, logger, and
+ * references to objects that need to be communicated with throughout the
+ * application (primarily seriesManager and chartView).
  */
 @Theme("mytheme")
 @Widgetset("org.test.MyAppWidgetset")
@@ -29,6 +31,10 @@ public class MainUI extends UI implements IRedrawableUI {
 
 	private static final long serialVersionUID = -3079757697754396044L;
 
+	/**
+	 * Use this for any logging.
+	 * TODO: add a better logger than the simple default.
+	 */
 	public static Logger logger = LoggerFactory.getLogger("default");
 	private SeriesManager seriesManager = null;
 	private ChartView chartView = new ChartView();
@@ -36,6 +42,9 @@ public class MainUI extends UI implements IRedrawableUI {
 	private VerticalLayout responsiveSection = null;
 	private Layout widgetLayout = null;
 
+	/**
+	 * Initialize the application and user interface
+	 */
 	@Override
 	protected void init(VaadinRequest vaadinRequest) {
 
@@ -52,7 +61,6 @@ public class MainUI extends UI implements IRedrawableUI {
 			getChart().addSeries(series);
 		});
 	}
-
 	private void initResizeHandler() {
 		resizeHandler = new PageResizeHandler(this, getPage().getBrowserWindowWidth(),
 				getPage().getBrowserWindowHeight());
@@ -100,18 +108,15 @@ public class MainUI extends UI implements IRedrawableUI {
 		return (MainUI) UI.getCurrent();
 	}
 
-	@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-	@VaadinServletConfiguration(ui = MainUI.class, productionMode = true)
-	@SuppressWarnings("serial")
-	public static class MyUIServlet extends VaadinServlet {
-	}
-
+	/**
+	 * Determines how to layout the series filter and chart based on a provided pageConfig
+	 */
 	@Override
 	public void redraw(PageLayoutConfig config) {
 		getChart().setDimensions(config.getChartWidth(), config.getChartHeight());
-		
+
 		responsiveSection.removeAllComponents();
-		if(config.isBeside()){
+		if (config.isBeside()) {
 			widgetLayout = new HorizontalLayout();
 			widgetLayout.setSizeUndefined();
 		} else {
@@ -121,6 +126,12 @@ public class MainUI extends UI implements IRedrawableUI {
 		responsiveSection.addComponent(widgetLayout);
 		widgetLayout.addComponent(seriesManager.getView());
 		widgetLayout.addComponent(chartView);
+	}
+	
+	@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
+	@VaadinServletConfiguration(ui = MainUI.class, productionMode = true)
+	@SuppressWarnings("serial")
+	public static class MyUIServlet extends VaadinServlet {
 	}
 
 }

@@ -12,6 +12,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Custom component to render each item in the "Series Filter" section of the
+ * UI. Each Series has a "list view" that is shown with "edit" and "delete"
+ * buttons in the main UI, and if "edit" is clicked, a popup view that shows a
+ * larger "editForm".
+ *
+ */
 public class SeriesView extends CustomComponent implements ISeriesFilter {
 
 	private static final long serialVersionUID = -2698526323751753670L;
@@ -29,24 +36,38 @@ public class SeriesView extends CustomComponent implements ISeriesFilter {
 
 		name.setStyleName("series-filter-label", true);
 		editPopup.setSizeUndefined();
+
+		/*
+		 * This is to keep track of what the original series name was before a
+		 * user started editting it. If they exit the pop up without clicking
+		 * "Update", the change will be discarded. If they do click "Update" a
+		 * rename operation will be preformed, which will also update the fields
+		 * correctly with the name it's now stored as.
+		 */
 		editPopup.addPopupVisibilityListener(event -> {
+			// if the popup just became visible, grab the original name
 			if (event.isPopupVisible()) {
 				editForm.setStoredName(getName());
-			} else {
+			} else { // popup is now hiding, reset the name so we don't lose
+						// track of what it's currently stored as
 				setName(editForm.getStoredName());
 			}
 		});
-		
-		
+
 	}
 
+	/**
+	 * little confirmation dialog if someone clicks 'delete'
+	 * 
+	 * @return
+	 */
 	private PopupView createDeleteWidget() {
 		VerticalLayout deleteLayout = new VerticalLayout();
 		Button deleteButton = new Button("Confirm");
 		deleteLayout.addComponent(new Label("Are you sure?"));
 		deleteLayout.addComponent(deleteButton);
 		PopupView deletePopup = new PopupView("Delete", deleteLayout);
-		
+
 		deleteButton.addClickListener(event -> {
 			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();
 			seriesManager.removeSeries(this.getName());
@@ -62,12 +83,17 @@ public class SeriesView extends CustomComponent implements ISeriesFilter {
 		editForm.setColour(colour);
 	}
 
+	/**
+	 * Trims series names to 21 characters with ... to keep size manageable in the series filter section
+	 * 
+	 * @param name
+	 */
 	public void setName(String name) {
-		if(name.length() > 24){
+		if (name.length() > 24) {
 			this.name.setValue(name.substring(0, 21) + "...");
 		} else {
 			this.name.setValue(name);
-		}	
+		}
 		editForm.setName(name);
 		editForm.setStoredName(name);
 	}

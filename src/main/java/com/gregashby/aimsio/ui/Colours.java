@@ -5,6 +5,9 @@ import java.util.List;
 
 import com.vaadin.addon.charts.model.style.SolidColor;
 
+/**
+ * The (arbitrary) colors allowed for this chart.
+ */
 public class Colours {
 
 	private static List<String> colours = new ArrayList<String>();

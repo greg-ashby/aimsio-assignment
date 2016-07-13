@@ -1,11 +1,20 @@
 package com.gregashby.aimsio.database;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class SignalInfo {
+/**
+ * Simple bean to represent each point on a chart - i.e. the date (which may be
+ * grouped by the year, month, day) and the count of signals that occured at
+ * that time
+ * 
+ * @author gregashby
+ *
+ */
+public class SignalInfo implements Serializable {
 
+	private static final long serialVersionUID = -4240937325048132497L;
 	private Date entryDate = null;
-	private String signalName = null;
 	private int count = 0;
 
 	public Date getEntryDate() {
@@ -14,14 +23,6 @@ public class SignalInfo {
 
 	public void setEntryDate(Date entryDate) {
 		this.entryDate = entryDate;
-	}
-
-	public String getSignalName() {
-		return signalName;
-	}
-
-	public void setSignalName(String signalName) {
-		this.signalName = signalName;
 	}
 
 	public int getCount() {

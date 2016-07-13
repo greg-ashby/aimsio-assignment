@@ -4,6 +4,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Utility class for converting strings to dates based on different date
+ * resolutions and format requirements.
+ * 
+ * For example, if a dateResolution is "Month", then only the year and month
+ * should be expected in strings. As well, the MySql format for date strings is
+ * different than for java (e.g. %Y-%m vs yyyy-MM).
+ *
+ */
 public class DateHandler {
 
 	public final static String DEFAULT_RESOLUTION = "Day";
