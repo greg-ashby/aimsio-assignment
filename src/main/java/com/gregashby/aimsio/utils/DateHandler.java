@@ -40,7 +40,7 @@ public class DateHandler {
 		return new SimpleDateFormat(getDateFormatForJava("Day")).format(date);
 	}
 
-	public static Date getDateFromJavaString(String dateStr) throws ParseException {
+	public static Date convertDayString(String dateStr) throws ParseException {
 		return dateStr == null ? null : new SimpleDateFormat(getDateFormatForJava("Day")).parse(dateStr);
 	}
 

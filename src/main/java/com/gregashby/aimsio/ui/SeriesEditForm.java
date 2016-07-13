@@ -1,23 +1,20 @@
-package com.gregashby.aimsio.components;
+package com.gregashby.aimsio.ui;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.ws.Holder;
-
-import com.gregashby.aimsio.model.MySeries;
+import com.gregashby.aimsio.model.Series;
 import com.gregashby.aimsio.model.SeriesManager;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 
-public class SeriesEditView extends CustomComponent {
+public class SeriesEditForm extends CustomComponent {
 
 	private static final long serialVersionUID = 7587816212756872418L;
 	private static final String DATE_FIELD_DISPLAY_FORMAT = "yyyy-MM-dd";
@@ -35,7 +32,7 @@ public class SeriesEditView extends CustomComponent {
 
 	private String storedName = null;
 	
-	public SeriesEditView() {
+	public SeriesEditForm() {
 		setCompositionRoot(layout);
 		layout.setSizeUndefined();
 		layout.addComponent(name);
@@ -49,18 +46,11 @@ public class SeriesEditView extends CustomComponent {
 		layout.addComponent(updateButton);
 
 		updateButton.addClickListener(event -> {
-			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();
-			ChartView chart = MainUI.getMainUI().getChart();
-			chart.removeSeries(getStoredName());
-			
-			MySeries updatedSeries = seriesManager.renameSeries(getStoredName(), getName());
-			updatedSeries.setColour(getColour());
-			updatedSeries.setAssetUN(getAssetUN());
-			updatedSeries.setStatus(getStatus());
-			updatedSeries.setDateResolution(getDateResolution());
+			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();	
+			Series updatedSeries = seriesManager.renameSeries(getStoredName(), getName());
 			updatedSeries.reloadData();
-			updatedSeries.getListView().hideEdit();
-			chart.addSeries(updatedSeries);
+			updatedSeries.getView().hideEdit();
+			MainUI.getMainUI().getChart().update(seriesManager);
 		});
 		
 		dateResolutionGroup.addItems("Year", "Month", "Day");

@@ -1,4 +1,4 @@
-package com.gregashby.aimsio.components;
+package com.gregashby.aimsio.ui;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,4 @@
-package com.gregashby.aimsio.components;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.gregashby.aimsio.ui;
 
 import javax.naming.NamingException;
 import javax.servlet.annotation.WebServlet;
@@ -11,21 +8,15 @@ import org.slf4j.LoggerFactory;
 
 import com.gregashby.aimsio.database.SignalsData;
 import com.gregashby.aimsio.model.SeriesManager;
-import com.gregashby.aimsio.model.MySeries;
-import com.vaadin.addon.charts.Chart;
-import com.vaadin.addon.charts.model.AxisType;
-import com.vaadin.addon.charts.model.ChartType;
-import com.vaadin.addon.charts.model.Configuration;
-import com.vaadin.addon.charts.model.DataSeries;
-import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.Series;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.CustomLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  *
@@ -39,30 +30,42 @@ public class MainUI extends UI {
 	public static Logger logger = LoggerFactory.getLogger("default");
 	private SeriesManager seriesManager = null;
 	private ChartView chartView = new ChartView();
-	
-	private CustomLayout layout = new CustomLayout("layout");
 
 	@Override
 	protected void init(VaadinRequest vaadinRequest) {
-		setContent(layout);
-
-		layout.addComponent(chartView, "chart");
+		HorizontalLayout subLayout = layout();
 
 		initDatabaseConnection();
 
 		seriesManager = new SeriesManager();
-		layout.addComponent(seriesManager.getView(), "series-filter");
+		subLayout.addComponent(seriesManager.getView());
+		subLayout.addComponent(chartView);
+		
 		seriesManager.getSeries().forEach((seriesName, series) -> {
 			series.reloadData();
 			getChart().addSeries(series);
 		});
 	}
 
+	private HorizontalLayout layout() {
+		VerticalLayout topLayout = new VerticalLayout();
+		setContent(topLayout);
+		Label header = new Label("TODO: Put a real nice header here");
+		header.setStyleName("header", true);
+		topLayout.addComponent(header);
+		HorizontalLayout subLayout = new HorizontalLayout();
+		topLayout.addComponent(subLayout);
+		Label footer = new Label("TODO: Put a real nice footer here");
+		footer.setStyleName("footer", true);
+		topLayout.addComponent(footer);
+		return subLayout;
+	}
+
 	private void initDatabaseConnection() {
 		try {
 			SignalsData.initConnection();
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
+			// TODO Display error message that database cannot be reached
 			e.printStackTrace();
 		}
 	}
@@ -81,6 +84,7 @@ public class MainUI extends UI {
 
 	@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
 	@VaadinServletConfiguration(ui = MainUI.class, productionMode = true)
+	@SuppressWarnings("serial")
 	public static class MyUIServlet extends VaadinServlet {
 	}
 

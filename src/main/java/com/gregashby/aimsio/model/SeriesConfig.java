@@ -32,8 +32,8 @@ public class SeriesConfig {
 	}
 	
 	public void initFromDatabase() {
-		assetUNList = MySeries.makeBlankList();
-		statusList = MySeries.makeBlankList();
+		assetUNList = Series.makeBlankList();
+		statusList = Series.makeBlankList();
 
 		try {
 			assetUNList.addAll(SignalsData.getAssetUNs());

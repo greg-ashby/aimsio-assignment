@@ -1,6 +1,6 @@
 package com.gregashby.aimsio.database;
 
-import static com.gregashby.aimsio.components.MainUI.logger;
+import static com.gregashby.aimsio.ui.MainUI.logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

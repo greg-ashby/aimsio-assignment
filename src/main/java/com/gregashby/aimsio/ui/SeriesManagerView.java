@@ -1,6 +1,6 @@
-package com.gregashby.aimsio.components;
+package com.gregashby.aimsio.ui;
 
-import com.gregashby.aimsio.model.MySeries;
+import com.gregashby.aimsio.model.Series;
 import com.gregashby.aimsio.model.SeriesManager;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -20,19 +20,26 @@ public class SeriesManagerView extends CustomComponent {
 	private int newSeriesCount = 0;
 	
 	public SeriesManagerView() {
+		layout();
+		
+		addSeriesbutton.addClickListener(event -> {
+			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();
+			newSeriesCount += 1;
+			Series newSeries = seriesManager.createNewSeries("New Series ("+ newSeriesCount + ")");
+			seriesManager.addSeries(newSeries);
+			newSeries.getView().showEdit();
+		});
+	}
+
+	private void layout() {
 		setCompositionRoot(layout);
 		layout.addComponent(header);
 		layout.addComponent(seriesLayout);
 		layout.addComponent(addSeriesbutton);
 		layout.addComponent(maxSeriesWarning);
 		
-		addSeriesbutton.addClickListener(event -> {
-			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();
-			newSeriesCount += 1;
-			MySeries newSeries = seriesManager.createNewSeries("New Series ("+ newSeriesCount + ")");
-			seriesManager.addSeries(newSeries);
-			newSeries.getListView().showEdit();
-		});
+		layout.setStyleName("series-filter-section", true);
+		header.setStyleName("series-filter-header", true);
 	}
 	
 	public void updateAddButtonVisibility(boolean maxReached) {
@@ -46,12 +53,12 @@ public class SeriesManagerView extends CustomComponent {
 		
 	}
 
-	public void addSeries(MySeries seriesToAdd) {
-		seriesLayout.addComponent(seriesToAdd.getListView());
+	public void addSeries(Series seriesToAdd) {
+		seriesLayout.addComponent(seriesToAdd.getView());
 	}
 	
-	public void removeSeries(MySeries seriesToRemove){
-		seriesLayout.removeComponent(seriesToRemove.getListView());
+	public void removeSeries(Series seriesToRemove){
+		seriesLayout.removeComponent(seriesToRemove.getView());
 	}
 	
 

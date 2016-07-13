@@ -1,4 +1,4 @@
-package com.gregashby.aimsio.components;
+package com.gregashby.aimsio.ui;
 
 import java.util.Date;
 import java.util.List;
@@ -12,58 +12,68 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.VerticalLayout;
 
-public class SeriesListView extends CustomComponent implements ISeriesFilter {
+public class SeriesView extends CustomComponent implements ISeriesFilter {
 
 	private static final long serialVersionUID = -2698526323751753670L;
 	private HorizontalLayout layout = new HorizontalLayout();
 	private Label name = new Label("");
-	private SeriesEditView editView = new SeriesEditView();
-	private PopupView editPopup = new PopupView("Edit", editView);
+	private SeriesEditForm editForm = new SeriesEditForm();
+	private PopupView editPopup = new PopupView("Edit", editForm);
 
-	public SeriesListView() {
+	public SeriesView() {
 		setCompositionRoot(layout);
 		layout.setSpacing(true);
 		layout.addComponent(name);
 		layout.addComponent(editPopup);
+		layout.addComponent(createDeleteWidget());
 
+		name.setStyleName("series-filter-label", true);
+		editPopup.setSizeUndefined();
+		editPopup.addPopupVisibilityListener(event -> {
+			if (event.isPopupVisible()) {
+				editForm.setStoredName(getName());
+			} else {
+				setName(editForm.getStoredName());
+			}
+		});
+		
+		
+	}
+
+	private PopupView createDeleteWidget() {
 		VerticalLayout deleteLayout = new VerticalLayout();
 		Button deleteButton = new Button("Confirm");
 		deleteLayout.addComponent(new Label("Are you sure?"));
 		deleteLayout.addComponent(deleteButton);
 		PopupView deletePopup = new PopupView("Delete", deleteLayout);
-		layout.addComponent(deletePopup);
-
+		
 		deleteButton.addClickListener(event -> {
 			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();
 			seriesManager.removeSeries(this.getName());
 		});
-
-		editPopup.setSizeUndefined();
-		editPopup.addPopupVisibilityListener(event -> {
-			if (event.isPopupVisible()) {
-				editView.setStoredName(getName());
-			} else {
-				setName(editView.getStoredName());
-			}
-		});
+		return deletePopup;
 	}
 
 	public String getColour() {
-		return editView.getColour();
+		return editForm.getColour();
 	}
-	
-	public void setColour(String colour){
-		editView.setColour(colour);
+
+	public void setColour(String colour) {
+		editForm.setColour(colour);
 	}
-	
+
 	public void setName(String name) {
-		this.name.setValue(name);
-		editView.setName(name);
-		editView.setStoredName(name);
+		if(name.length() > 24){
+			this.name.setValue(name.substring(0, 21) + "...");
+		} else {
+			this.name.setValue(name);
+		}	
+		editForm.setName(name);
+		editForm.setStoredName(name);
 	}
 
 	public String getName() {
-		return editView.getName();
+		return editForm.getName();
 	}
 
 	public void showEdit() {
@@ -75,61 +85,60 @@ public class SeriesListView extends CustomComponent implements ISeriesFilter {
 	}
 
 	public void setAssetUnOptions(List<String> assetUNList) {
-		editView.setAssetUnOptions(assetUNList);
+		editForm.setAssetUnOptions(assetUNList);
 	}
 
 	public void setAssetUN(String assetUN) {
-		editView.setAssetUN(assetUN);
+		editForm.setAssetUN(assetUN);
 	}
 
 	public String getAssetUN() {
-		return editView.getAssetUN();
+		return editForm.getAssetUN();
 	}
 
 	public void setStatusOptions(List<String> statusList) {
-		editView.setStatusOptions(statusList);
+		editForm.setStatusOptions(statusList);
 	}
 
 	public void setStatus(String status) {
-		editView.setStatus(status);
+		editForm.setStatus(status);
 	}
 
 	public String getStatus() {
-		return editView.getStatus();
+		return editForm.getStatus();
 	}
 
 	@Override
 	public Date getFromDate() {
-		return editView.getFromDate();
+		return editForm.getFromDate();
 	}
 
 	@Override
 	public void setFromDate(Date fromDate) {
-		editView.setFromDate(fromDate);
+		editForm.setFromDate(fromDate);
 	}
 
 	@Override
 	public Date getToDate() {
-		return editView.getToDate();
+		return editForm.getToDate();
 	}
 
 	@Override
 	public void setToDate(Date toDate) {
-		editView.setToDate(toDate);
-		
+		editForm.setToDate(toDate);
 	}
 
 	@Override
 	public String getDateResolution() {
-		return editView.getDateResolution();
+		return editForm.getDateResolution();
 	}
 
 	@Override
 	public void setDateResolution(String dateResolution) {
-		editView.setDateResolution(dateResolution);
+		editForm.setDateResolution(dateResolution);
 	}
 
 	public void initDateFields(Date maxDate) {
-		editView.initDateFields(maxDate);	
+		editForm.initDateFields(maxDate);
 	}
 }

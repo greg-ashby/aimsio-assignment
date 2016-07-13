@@ -63,8 +63,8 @@ public class QueryBuilderTest {
 
 		for (int x = 0; x < expecteds.length; x++) {
 			ISeriesFilter seriesFilter = new MockSeriesFilter();
-			seriesFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
-			seriesFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
+			seriesFilter.setFromDate(DateHandler.convertDayString(fromDates[x]));
+			seriesFilter.setToDate(DateHandler.convertDayString(toDates[x]));
 			String actual = builder.buildQuery(seriesFilter);
 			assertEquals("Failed on iteration: " + x, expecteds[x], actual);
 		}
@@ -157,8 +157,8 @@ public class QueryBuilderTest {
 
 		for (int x = 0; x < expecteds.length; x++) {
 			ISeriesFilter seriesFilter = new MockSeriesFilter();
-			seriesFilter.setFromDate(DateHandler.getDateFromJavaString(fromDates[x]));
-			seriesFilter.setToDate(DateHandler.getDateFromJavaString(toDates[x]));
+			seriesFilter.setFromDate(DateHandler.convertDayString(fromDates[x]));
+			seriesFilter.setToDate(DateHandler.convertDayString(toDates[x]));
 			seriesFilter.setDateResolution(resolutions[x]);
 			seriesFilter.setAssetUN(assetUNs[x]);
 			seriesFilter.setStatus(statuses[x]);
