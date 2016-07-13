@@ -11,10 +11,12 @@ import com.gregashby.aimsio.model.SeriesManager;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -23,42 +25,58 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Theme("mytheme")
 @Widgetset("org.test.MyAppWidgetset")
-public class MainUI extends UI {
+public class MainUI extends UI implements IRedrawableUI {
 
 	private static final long serialVersionUID = -3079757697754396044L;
 
 	public static Logger logger = LoggerFactory.getLogger("default");
 	private SeriesManager seriesManager = null;
 	private ChartView chartView = new ChartView();
+	private PageResizeHandler resizeHandler = null;
+	private VerticalLayout responsiveSection = null;
+	private Layout widgetLayout = null;
 
 	@Override
 	protected void init(VaadinRequest vaadinRequest) {
-		HorizontalLayout subLayout = layout();
 
 		initDatabaseConnection();
-
 		seriesManager = new SeriesManager();
-		subLayout.addComponent(seriesManager.getView());
-		subLayout.addComponent(chartView);
-		
+
+		initResizeHandler();
+
+		layout();
+		redraw(resizeHandler.calculateNewConfig());
+
 		seriesManager.getSeries().forEach((seriesName, series) -> {
 			series.reloadData();
 			getChart().addSeries(series);
 		});
 	}
 
-	private HorizontalLayout layout() {
+	private void initResizeHandler() {
+		resizeHandler = new PageResizeHandler(this, getPage().getBrowserWindowWidth(),
+				getPage().getBrowserWindowHeight());
+		Page.getCurrent().addBrowserWindowResizeListener(event -> {
+			resizeHandler.observeChange(getPage().getBrowserWindowWidth(), getPage().getBrowserWindowHeight());
+		});
+	}
+
+	private void layout() {
 		VerticalLayout topLayout = new VerticalLayout();
 		setContent(topLayout);
+
 		Label header = new Label("TODO: Put a real nice header here");
 		header.setStyleName("header", true);
 		topLayout.addComponent(header);
-		HorizontalLayout subLayout = new HorizontalLayout();
-		topLayout.addComponent(subLayout);
+
+		responsiveSection = new VerticalLayout();
+		widgetLayout = new VerticalLayout();
+		responsiveSection.addComponent(widgetLayout);
+		topLayout.addComponent(responsiveSection);
+
 		Label footer = new Label("TODO: Put a real nice footer here");
 		footer.setStyleName("footer", true);
 		topLayout.addComponent(footer);
-		return subLayout;
 	}
 
 	private void initDatabaseConnection() {
@@ -73,7 +91,7 @@ public class MainUI extends UI {
 	public ChartView getChart() {
 		return chartView;
 	}
-	
+
 	public SeriesManager getSeriesManager() {
 		return seriesManager;
 	}
@@ -86,6 +104,23 @@ public class MainUI extends UI {
 	@VaadinServletConfiguration(ui = MainUI.class, productionMode = true)
 	@SuppressWarnings("serial")
 	public static class MyUIServlet extends VaadinServlet {
+	}
+
+	@Override
+	public void redraw(PageLayoutConfig config) {
+		getChart().setDimensions(config.getChartWidth(), config.getChartHeight());
+		
+		responsiveSection.removeAllComponents();
+		if(config.isBeside()){
+			widgetLayout = new HorizontalLayout();
+			widgetLayout.setSizeUndefined();
+		} else {
+			widgetLayout = new VerticalLayout();
+			widgetLayout.setSizeUndefined();
+		}
+		responsiveSection.addComponent(widgetLayout);
+		widgetLayout.addComponent(seriesManager.getView());
+		widgetLayout.addComponent(chartView);
 	}
 
 }

@@ -1,13 +1,15 @@
 package com.gregashby.aimsio.model;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.gregashby.aimsio.ui.MainUI;
 import com.gregashby.aimsio.ui.SeriesManagerView;
 
-public class SeriesManager {
+public class SeriesManager implements Serializable{
 
+	private static final long serialVersionUID = 6784811501504997239L;
 	private static final int MAX_SERIES = 10;
 	private Map<String, Series> serieses = new LinkedHashMap<String, Series>();
 	private SeriesConfig seriesConfig = new SeriesConfig();

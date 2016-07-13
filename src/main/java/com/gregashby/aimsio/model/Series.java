@@ -1,5 +1,6 @@
 package com.gregashby.aimsio.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -9,8 +10,9 @@ import com.gregashby.aimsio.database.SignalInfo;
 import com.gregashby.aimsio.database.SignalsData;
 import com.gregashby.aimsio.ui.SeriesView;
 
-public class Series {
+public class Series implements Serializable {
 
+	private static final long serialVersionUID = 3565558513108558595L;
 	private List<SignalInfo> dataCache = null;
 	private SeriesView view = new SeriesView();
 	

@@ -1,13 +1,15 @@
 package com.gregashby.aimsio.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 import com.gregashby.aimsio.database.SignalsData;
 
-public class SeriesConfig {
-	
+public class SeriesConfig implements Serializable{
+
+	private static final long serialVersionUID = 296343068340149341L;
 	private List<String> assetUNList = null;
 	private List<String> statusList = null;
 	private Date maxDate = new Date();

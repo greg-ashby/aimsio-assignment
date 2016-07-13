@@ -9,6 +9,7 @@ import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
 import com.vaadin.addon.charts.model.PlotOptionsLine;
+import com.vaadin.server.Responsive;
 import com.vaadin.ui.CustomComponent;
 
 public class ChartView extends CustomComponent {
@@ -19,10 +20,12 @@ public class ChartView extends CustomComponent {
 	
 	public ChartView(){
 		initChart();
+		setStyleName("my-chart-view", true);
 	}
 
 	private void initChart() {
 		chart = new Chart();
+		Responsive.makeResponsive(chart);
 		Configuration config = chart.getConfiguration();
 		config.setTitle("Signal Counts by Date");
 		config.getChart().setType(ChartType.LINE);
@@ -50,5 +53,8 @@ public class ChartView extends CustomComponent {
 		chart.getConfiguration().addSeries(signals);
 	}
 
-
+	public void setDimensions(int width, int height){
+		chart.setWidth(""+ width + "px");
+		chart.setHeight("" + height +"px");
+	}
 }

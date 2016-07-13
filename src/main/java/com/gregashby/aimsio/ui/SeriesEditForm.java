@@ -18,7 +18,7 @@ public class SeriesEditForm extends CustomComponent {
 
 	private static final long serialVersionUID = 7587816212756872418L;
 	private static final String DATE_FIELD_DISPLAY_FORMAT = "yyyy-MM-dd";
-	
+
 	private FormLayout layout = new FormLayout();
 	private TextField name = new TextField("Series Name");
 	private ComboBox colours = new ComboBox("Series Colour");
@@ -27,12 +27,31 @@ public class SeriesEditForm extends CustomComponent {
 	private DateField fromDate = new DateField("From");
 	private DateField toDate = new DateField("To");
 	private OptionGroup dateResolutionGroup = new OptionGroup("Date Resolution");
-	
+
 	private Button updateButton = new Button("Update Series");
 
 	private String storedName = null;
-	
+
 	public SeriesEditForm() {
+		layout();
+
+		updateButton.addClickListener(event -> {
+			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();
+			Series updatedSeries = seriesManager.renameSeries(getStoredName(), getName());
+			updatedSeries.reloadData();
+			updatedSeries.getView().hideEdit();
+			MainUI.getMainUI().getChart().update(seriesManager);
+		});
+
+		// TODO add hour, minute... should be easy to do by changing DateHandler
+		dateResolutionGroup.addItems("Year", "Month", "Day");
+		dateResolutionGroup.setValue("Day");
+
+		setColourOptions(Colours.getColours());
+		setColour("");
+	}
+
+	private void layout() {
 		setCompositionRoot(layout);
 		layout.setSizeUndefined();
 		layout.addComponent(name);
@@ -42,22 +61,7 @@ public class SeriesEditForm extends CustomComponent {
 		layout.addComponent(fromDate);
 		layout.addComponent(toDate);
 		layout.addComponent(dateResolutionGroup);
-		
 		layout.addComponent(updateButton);
-
-		updateButton.addClickListener(event -> {
-			SeriesManager seriesManager = MainUI.getMainUI().getSeriesManager();	
-			Series updatedSeries = seriesManager.renameSeries(getStoredName(), getName());
-			updatedSeries.reloadData();
-			updatedSeries.getView().hideEdit();
-			MainUI.getMainUI().getChart().update(seriesManager);
-		});
-		
-		dateResolutionGroup.addItems("Year", "Month", "Day");
-		dateResolutionGroup.setValue("Day");
-		
-		setColourOptions(Colours.getColours());
-		setColour("");
 	}
 
 	public void initDateFields(Date toDate) {
@@ -72,18 +76,18 @@ public class SeriesEditForm extends CustomComponent {
 		setFromDate(fromDate);
 		setToDate(toDate);
 	}
+
 	public void setName(String name) {
 		this.name.setValue(name);
 	}
-	
-	public String getName(){
+
+	public String getName() {
 		return this.name.getValue();
 	}
-	
+
 	public Date getFromDate() {
 		return fromDate.getValue();
 	}
-
 
 	public void setFromDate(Date fromDate) {
 		this.fromDate.setValue(fromDate);
@@ -96,7 +100,7 @@ public class SeriesEditForm extends CustomComponent {
 	public void setToDate(Date toDate) {
 		this.toDate.setValue(toDate);
 	}
-	
+
 	public void setColourOptions(List<String> colours) {
 		this.colours.removeAllItems();
 		this.colours.addItems(colours);
@@ -105,8 +109,8 @@ public class SeriesEditForm extends CustomComponent {
 	public void setColour(String colour) {
 		colours.setValue(colour);
 	}
-	
-	public String getColour(){
+
+	public String getColour() {
 		return colours.getValue().toString();
 	}
 
@@ -118,11 +122,11 @@ public class SeriesEditForm extends CustomComponent {
 	public void setAssetUN(String assetUN) {
 		assetUNs.setValue(assetUN);
 	}
-	
-	public String getAssetUN(){
+
+	public String getAssetUN() {
 		return assetUNs.getValue().toString();
 	}
-	
+
 	public void setStatusOptions(List<String> statuses) {
 		this.statuses.removeAllItems();
 		this.statuses.addItems(statuses);
@@ -131,8 +135,8 @@ public class SeriesEditForm extends CustomComponent {
 	public void setStatus(String status) {
 		statuses.setValue(status);
 	}
-	
-	public String getStatus(){
+
+	public String getStatus() {
 		return statuses.getValue().toString();
 	}
 
@@ -143,7 +147,7 @@ public class SeriesEditForm extends CustomComponent {
 	public void setStoredName(String storedName) {
 		this.storedName = storedName;
 	}
-	
+
 	public String getDateResolution() {
 		return dateResolutionGroup.getValue().toString();
 	}
@@ -151,5 +155,5 @@ public class SeriesEditForm extends CustomComponent {
 	public void setDateResolution(String dateResolution) {
 		dateResolutionGroup.setValue(dateResolution);
 	}
-	
+
 }

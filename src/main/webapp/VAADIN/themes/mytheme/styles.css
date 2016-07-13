@@ -12958,3 +12958,8 @@ div.v-layout.v-horizontal.v-widget {
 .mytheme .series-filter-label {
 	width: 150px;
 }
+
+.mytheme .my-chart-view {
+	border-style: solid;
+	border-width: 20px;
+}
